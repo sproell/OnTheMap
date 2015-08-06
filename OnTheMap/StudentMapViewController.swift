@@ -17,26 +17,13 @@ class StudentMapViewController: UIViewController, MKMapViewDelegate {
         super.viewDidLoad()
         
         // Add listener for refresh notification
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateMap", name: "RefreshLocations", object: nil)
-        
-        // update our map with data
-        updateMap()
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "refreshLocations", name: "RefreshLocations", object: nil)
     }
     
-    // load the student data and add to map
-    func updateMap() {
-        
-        StudentLocations.sharedInstance().load(false, completionHandler: { (result, error) -> Void in
-            if let locations = result {
-                self.addPins(locations)
-            } else {
-                let alertController = UIAlertController(title: "Error Loading Locations", message: error!, preferredStyle: UIAlertControllerStyle.Alert)
-                alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
-                self.presentViewController(alertController, animated: true, completion: nil)
-            }
-        })
+    func refreshLocations() {
+        addPins(StudentLocations.sharedInstance.locations)
     }
-    
+        
     // add the array of StudentLocations to the map
     func addPins(locations: [StudentLocation]) {
         
@@ -93,6 +80,13 @@ class StudentMapViewController: UIViewController, MKMapViewDelegate {
     
     // When the annotation callout button is tapped, open the mediaURL in a browser
     func mapView(mapView: MKMapView!, annotationView view: MKAnnotationView!, calloutAccessoryControlTapped control: UIControl!) {
-        UIApplication.sharedApplication().openURL(NSURL(string:view.annotation.subtitle!)!)
+        
+        // some saved locations have no URL or an invalid URL.
+        if let mediaURL = view.annotation.subtitle {
+            let url = NSURL(string:mediaURL)
+            if let validURL = url {
+                UIApplication.sharedApplication().openURL(validURL)
+            }
+        }
     }
 }

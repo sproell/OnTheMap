@@ -11,50 +11,44 @@ import UIKit
 class LocationListViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     @IBOutlet weak var tableView: UITableView!
-    var locations : [StudentLocation]?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        println("vdl: llvc")
-        
+       
+        // Add listener for refresh notification
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateTable", name: "RefreshLocations", object: nil)
-        
-        updateTable()
     }
     
+    // called upon notification when locations are loaded
     func updateTable() {
-
-        StudentLocations.sharedInstance().load(false, completionHandler: { (result, error) -> Void in
-            if let locations = result {
-                self.locations = locations
-                dispatch_async(dispatch_get_main_queue(), {
-                    self.tableView.reloadData()
-                })
-            } else {
-                // what if we cannot load locations?
-            }
+        dispatch_async(dispatch_get_main_queue(), {
+            self.tableView.reloadData()
         })
     }
-    
-    override func viewWillAppear(animated: Bool) {
-        super.viewWillAppear(animated)
-        println("vwa: llvc")
-    }
+
+    // functions for rendering location data in the tableView
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.locations!.count
+        return StudentLocations.sharedInstance.locations.count
     }
 
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("StudentLocationCell", forIndexPath: indexPath) as! StudentLocationTableViewCell
-        let loc = locations![indexPath.row]
+        let loc = StudentLocations.sharedInstance.locations[indexPath.row]
         cell.label.text = "\(loc.firstName!) \(loc.lastName!)"
         return cell
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         // Get currently selected location and show the associated media URL in a browser
-        let loc = locations![indexPath.row]
-        UIApplication.sharedApplication().openURL(NSURL(string:loc.mediaURL!)!)
+        let loc = StudentLocations.sharedInstance.locations[indexPath.row]
+        
+        // some saved locations have no URL or an invalid URL.
+        if let mediaURL = loc.mediaURL {
+            let url = NSURL(string:mediaURL)
+            if let validURL = url {
+                UIApplication.sharedApplication().openURL(validURL)
+            }
+        }
     }
 }

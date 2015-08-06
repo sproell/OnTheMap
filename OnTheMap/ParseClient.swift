@@ -18,6 +18,7 @@ class ParseClient: NSObject {
         super.init()
     }
     
+    // convenience method for adding headers to http requests
     func addAuthHeadersToRequest(request: NSMutableURLRequest) {
         request.addValue("QrX47CA9cyuGewLdsL7o5Eb8iug6Em8ye0dnAbIr", forHTTPHeaderField: "X-Parse-Application-Id")
         request.addValue("QuWThTdiRmTux3YaDseUSEpUKo7aBYM737yKd4gY", forHTTPHeaderField: "X-Parse-REST-API-Key")
@@ -54,6 +55,7 @@ class ParseClient: NSObject {
         task.resume()
     }
     
+    // POST a new student location
     func saveLocation(userKey: String, location: StudentLocation, completionHandler: (success: Bool, error: NSError?) -> Void) {
 
         // create request using API endpoint URL
@@ -67,12 +69,10 @@ class ParseClient: NSObject {
         // set the request body with the provided location data
         request.HTTPBody = "{\"uniqueKey\": \"\(userKey)\", \"firstName\": \"\(location.firstName!)\", \"lastName\": \"\(location.lastName!)\", \"mapString\": \"\(location.mapString!)\",\"mediaURL\": \"\(location.mediaURL!)\", \"latitude\": \(location.latitude!), \"longitude\": \(location.longitude!)}".dataUsingEncoding(NSUTF8StringEncoding)
         
-        println(NSString(data: request.HTTPBody!, encoding: NSUTF8StringEncoding)!)
-        
         // make the request.  we assume the request succeeded if a valid objectId is returned
         let task = session.dataTaskWithRequest(request) { data, response, downloadError in
             if let error = downloadError {
-                completionHandler(success: false, error: NSError(domain: "saveLocation", code: 0, userInfo: [NSLocalizedDescriptionKey: "request failed"]))
+                completionHandler(success: false, error: NSError(domain: "ParseClient.saveLocation", code: 0, userInfo: [NSLocalizedDescriptionKey: "request failed"]))
             } else {
                 var parsingError: NSError? = nil
                 let parsedResult = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments, error: &parsingError) as! NSDictionary
@@ -80,7 +80,7 @@ class ParseClient: NSObject {
                 if let objectId = parsedResult.valueForKey("objectId") as? String {
                     completionHandler(success: true, error: nil)
                 } else {
-                    completionHandler(success: false, error: NSError(domain: "saveLocation", code: 0, userInfo: [NSLocalizedDescriptionKey: "could not find key \"objectId\" in response"]))
+                    completionHandler(success: false, error: NSError(domain: "ParseClient.saveLocation", code: 0, userInfo: [NSLocalizedDescriptionKey: "could not find key \"objectId\" in response"]))
                 }
             }
         }

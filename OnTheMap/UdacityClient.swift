@@ -13,19 +13,19 @@ class UdacityClient: NSObject {
     // shared session
     var session: NSURLSession
     
+    // The user's Udacity id.  Populated after the user logs in.
     var userID: String?
-    var sessionID: String?
     
     override init() {
         session = NSURLSession.sharedSession()
         super.init()
     }
     
+    // Begin a Udacity session by logging in the user.
     func beginSession(username: String, password: String, completionHandler: (success: Bool, errorString: String?) -> Void) {
         
         self.userID = nil
-        self.sessionID = nil
-        
+
         let request = NSMutableURLRequest(URL: NSURL(string: "https://www.udacity.com/api/session")!)
         
         request.HTTPMethod = "POST"
@@ -35,13 +35,14 @@ class UdacityClient: NSObject {
         
         let task = session.dataTaskWithRequest(request) { data, response, error in
 
+            // An error occurred with the request.
             if error != nil {
                 completionHandler(success: false, errorString: error.localizedDescription)
                 return
             }
             
+            // We received a response, now parse the data
             let newData = data.subdataWithRange(NSMakeRange(5, data.length - 5)) /* subset response data! */
-            println(NSString(data: newData, encoding: NSUTF8StringEncoding))
             
             var parsingError: NSError? = nil
             let parsedResult = NSJSONSerialization.JSONObjectWithData(newData, options: NSJSONReadingOptions.AllowFragments, error: &parsingError) as? NSDictionary
@@ -51,17 +52,9 @@ class UdacityClient: NSObject {
             } else {
                 if let account = parsedResult?.valueForKey("account") as? [String : AnyObject] {
                     if let key = account["key"] as? String {
+                        // successful login
                         self.userID = key
-                        if let session = parsedResult?.valueForKey("session") as? [String : AnyObject] {
-                            if let sid = session["id"] as? String {
-                                self.sessionID = sid
-                                completionHandler(success: true, errorString: nil)
-                            } else {
-                                completionHandler(success: false, errorString: "beginSession (sid)")
-                            }
-                        } else {
-                            completionHandler(success: false, errorString: "beginSession (session)")
-                        }
+                        completionHandler(success: true, errorString: nil)
                     } else {
                         completionHandler(success: false, errorString: "beginSession (key)")
                     }
@@ -81,12 +74,14 @@ class UdacityClient: NSObject {
         
         task.resume()
     }
-    
+ 
+    // End a Udacity user's session
     func endSession(completionHandler: (success: Bool, errorString: String?) -> Void) {
         
         let request = NSMutableURLRequest(URL: NSURL(string: "https://www.udacity.com/api/session")!)
-        
         request.HTTPMethod = "DELETE"
+        
+        // add xsrf cookie for authentication
         var xsrfCookie: NSHTTPCookie? = nil
         let sharedCookieStorage = NSHTTPCookieStorage.sharedHTTPCookieStorage()
         for cookie in sharedCookieStorage.cookies as! [NSHTTPCookie] {
@@ -98,11 +93,13 @@ class UdacityClient: NSObject {
         
         let task = session.dataTaskWithRequest(request) { data, response, error in
             
+            // error with request
             if error != nil {
                 completionHandler(success: false, errorString: error.localizedDescription)
                 return
             }
         
+            // request successful
             var parsingError: NSError? = nil
             let newData = data.subdataWithRange(NSMakeRange(5, data.length - 5)) /* subset response data! */
             let parsedResult = NSJSONSerialization.JSONObjectWithData(newData, options: NSJSONReadingOptions.AllowFragments, error: &parsingError) as? NSDictionary
@@ -110,6 +107,7 @@ class UdacityClient: NSObject {
             if let error = parsingError {
                 completionHandler(success: false, errorString: "endSession(parse error)")
             } else {
+                // if the response contains a session node which contains an id node, we consider this success.
                 if let sessionNode = parsedResult?.valueForKey("session") as? [String : AnyObject] {
                     if let id = sessionNode["id"] as? String {
                         completionHandler(success: true, errorString: nil)
@@ -129,6 +127,9 @@ class UdacityClient: NSObject {
     // Get public user info for Udacity user
     func getUser(completionHandler: (user: UdacityUser?, errorString : String?) -> Void) {
         
+        // Setup the request.  Assume that the user has logged in and that we have saved the 
+        // user id needed for this request.
+        
         let urlString = "https://www.udacity.com/api/users/\(userID!)"
         let url = NSURL(string: urlString)!
         let request = NSURLRequest(URL: url)
@@ -144,6 +145,7 @@ class UdacityClient: NSObject {
                 let parsedResult = NSJSONSerialization.JSONObjectWithData(newData, options: NSJSONReadingOptions.AllowFragments, error: &parsingError) as! NSDictionary
                 
                 if let user = parsedResult.valueForKey("user") as? [String : AnyObject] {
+                    // sucesss.  return a loaded udacity user
                     let udacityUser = UdacityUser(dictionary: user)
                     completionHandler(user: udacityUser, errorString: nil)
                 } else {

@@ -28,9 +28,6 @@ class LoginViewController: UIViewController {
     
     @IBAction func login(sender: AnyObject) {
         
-        // for quicker debugging
-        //self.performSegueWithIdentifier("AuthSuccess", sender: sender)
-        
         let username = tfUserName.text
         let password = tfPassword.text
         
@@ -60,7 +57,6 @@ class LoginViewController: UIViewController {
     
     // Display an alert to the user warning of login failure
     func showLoginAlert(message: String) {
-        
         let alertController = UIAlertController(title: "Error Logging In", message: message, preferredStyle: UIAlertControllerStyle.Alert)
         alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default,handler: nil))
         self.presentViewController(alertController, animated: true, completion: nil)

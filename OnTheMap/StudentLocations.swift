@@ -8,33 +8,26 @@
 
 import Foundation
 
+// This model class contains the array of locations displayed within the app.
+
 class StudentLocations : NSObject {
     
-    private var locations : [StudentLocation]?
-    
-    func load(refresh: Bool, completionHandler: (locations: [StudentLocation]?, errorString: String?) -> Void) {
+    static let sharedInstance = StudentLocations()
 
-        if refresh || locations == nil {
-            ParseClient.sharedInstance().getLocations { (result, error) -> Void in
-                if let locations = result {
-                    self.locations = locations
-                    completionHandler(locations: self.locations!, errorString: nil)
-                } else {
-                    self.locations = nil
-                    completionHandler(locations: nil, errorString: error?.localizedDescription)
-                }
-            }
-        } else {
-            completionHandler(locations: locations!, errorString: nil)
-        }
-    }
+    var locations = [StudentLocation]()
     
-    class func sharedInstance() -> StudentLocations {
-        
-        struct Singleton {
-            static var sharedInstance = StudentLocations()
+    func load(completionHandler: (success: Bool, errorString: String?) -> Void) {
+
+        ParseClient.sharedInstance().getLocations { (result, error) -> Void in
+            if let locations = result {
+                // remove all locations from array and add the new ones
+                self.locations.removeAll(keepCapacity: true)
+                self.locations.extend(locations)
+                completionHandler(success: true, errorString: nil)
+            } else {
+                self.locations.removeAll(keepCapacity: true)
+                completionHandler(success: false, errorString: error?.localizedDescription)
+            }
         }
-        
-        return Singleton.sharedInstance
     }
 }

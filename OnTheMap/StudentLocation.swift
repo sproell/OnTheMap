@@ -15,7 +15,7 @@ struct StudentLocation {
     var mapString: String? = nil
     var mediaURL: String? = nil
     
-    // Empty init method allows caller to initialize member in a custom way
+    // Empty init method allows caller to initialize members in a custom way
     init() {}
     
     // Construct a StudentLocation from a dictionary

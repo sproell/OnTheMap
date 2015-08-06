@@ -87,6 +87,14 @@
 			name = View;
 			sourceTree = "<group>";
 		};
+		24686C8F1B740B4F00FE3CC3 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				246B6EA21B50569900D8ACC0 /* Clients */,
+			);
+			name = Services;
+			sourceTree = "<group>";
+		};
 		246B6E731B50559E00D8ACC0 = {
 			isa = PBXGroup;
 			children = (
@@ -109,8 +117,9 @@
 		246B6E7E1B50559E00D8ACC0 /* OnTheMap */ = {
 			isa = PBXGroup;
 			children = (
-				244A8EAD1B5C4F99004E6587 /* View */,
+				24686C8F1B740B4F00FE3CC3 /* Services */,
 				246B6EA11B50568000D8ACC0 /* Model */,
+				244A8EAD1B5C4F99004E6587 /* View */,
 				246B6EA51B50573000D8ACC0 /* Controller */,
 				246B6E811B50559E00D8ACC0 /* AppDelegate.swift */,
 				246B6E851B50559E00D8ACC0 /* Main.storyboard */,
@@ -149,8 +158,8 @@
 		246B6EA11B50568000D8ACC0 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				246B6EA21B50569900D8ACC0 /* Clients */,
 				241712F51B698563001EFE34 /* StudentLocations.swift */,
+				246B6EB21B5465A800D8ACC0 /* StudentLocation.swift */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -177,7 +186,6 @@
 			isa = PBXGroup;
 			children = (
 				246B6EB01B5464D000D8ACC0 /* ParseClient.swift */,
-				246B6EB21B5465A800D8ACC0 /* StudentLocation.swift */,
 			);
 			name = Parse;
 			sourceTree = "<group>";

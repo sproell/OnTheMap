@@ -17,11 +17,8 @@ class TabBarViewController: UITabBarController {
         var rightPinBarButtonItem:UIBarButtonItem = UIBarButtonItem(image: UIImage(named: "pin"), style: UIBarButtonItemStyle.Plain, target: self, action: "pinTapped:")
         var rightRefreshBarButtonItem:UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Refresh, target: self, action: "refreshLocations:")
         self.navigationItem.setRightBarButtonItems([rightRefreshBarButtonItem, rightPinBarButtonItem], animated: true)
-    }
-    
-    override func viewWillAppear(animated: Bool) {
-        super.viewWillAppear(animated)
-        println("vwa: tbc")
+        
+        loadLocationData()
     }
     
     // Called wher user taps the logout button.
@@ -45,21 +42,32 @@ class TabBarViewController: UITabBarController {
             }
         }
     }
+    
+    // Location data is loaded from within the tabbarcontroller.  If the load is successful,
+    // a notification is sent to the tabbed view controllers to update their views with the 
+    // new data.
+    func loadLocationData() {
+        StudentLocations.sharedInstance.load({ (success, error) -> Void in
+            if success {
+                NSNotificationCenter.defaultCenter().postNotificationName("RefreshLocations", object: self)
+            } else {
+                let alertController = UIAlertController(title: "Error Loading Locations", message: error!, preferredStyle: UIAlertControllerStyle.Alert)
+                alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
+                self.presentViewController(alertController, animated: true, completion: nil)
+            }
+        })
+    }
 
     // Called when user taps refresh button on nav bar.  
     // Reload the data and send a notification to my view controllers 
     // to refresh their views of the location data
     func refreshLocations(sender: AnyObject) {
-
-        StudentLocations.sharedInstance().load(true, completionHandler: { (result, error) -> Void in
-            NSNotificationCenter.defaultCenter().postNotificationName("RefreshLocations", object: self)
-        })
+        loadLocationData()
     }
     
     // Called when user taps pin button on nav bar.
     // Seque to the Add Location view controller
     func pinTapped(sender: AnyObject) {
-        
         self.performSegueWithIdentifier("AddLocation", sender: sender)
     }
 }

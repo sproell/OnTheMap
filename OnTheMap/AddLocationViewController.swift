@@ -27,11 +27,16 @@ class AddLocationViewController: UIViewController {
         // The initial state of the view is that the first question is presented
         // and the map is hidden.
         mapView.hidden = true
+        showLocationPanel()
+    }
+    
+    // Show the view containing the location textfield
+    func showLocationPanel() {
         panelURL.hidden = true
         panelLocation.hidden = false
     }
     
-    // Show the view containing the URL question
+    // Show the view containing the URL textfield
     func showUrlPanel() {
         panelLocation.hidden = true
         panelURL.hidden = false
@@ -67,20 +72,20 @@ class AddLocationViewController: UIViewController {
                     
                     dispatch_async(dispatch_get_main_queue(), {
                         
-                        // show map
-                        self.mapView.hidden = false
-                    
                         // remove existing annotations
                         self.mapView.removeAnnotations(self.mapView.annotations)
-
-                        // add newly geocoded annotation
-                        self.mapView.addAnnotation(MKPlacemark(placemark: placemark))
-                    
+                        
                         // Center and zoom on to new point
                         var span = MKCoordinateSpanMake(0.075, 0.075)
                         var region = MKCoordinateRegion(center: placemark.location.coordinate, span: span)
                         self.mapView.setRegion(region, animated: true)
-                                        
+                        
+                        // show map
+                        self.mapView.hidden = false
+                        
+                        // add newly geocoded annotation
+                        self.mapView.addAnnotation(MKPlacemark(placemark: placemark))
+                    
                         // Show next panel
                         self.showUrlPanel()
                     })
@@ -105,12 +110,17 @@ class AddLocationViewController: UIViewController {
             showErrorAlert("URL is required.")
             
         } else {
+            // Before saving the location, we must fetch the logged in user's key.
+            // We could have done this when the user logged in, but this saves
+            // an API call until we know the user is intending to save a location.
+            
             activityIndicator.startAnimating()
 
             UdacityClient.sharedInstance().getUser({ (user, errorString) -> Void in
                 
                 if user == nil {
-                    
+                    // could not load the user
+                    self.showErrorAlert(errorString!)
                 } else {
                     
                     var newLoc = StudentLocation()
@@ -123,11 +133,13 @@ class AddLocationViewController: UIViewController {
                     
                     ParseClient.sharedInstance().saveLocation(user!.key!, location: newLoc, completionHandler: {(success, error) -> Void in
                         if success {
+                            // the location was saved successfully.  Dismiss view controller
+                            // and return to tabbed view.
                             dispatch_async(dispatch_get_main_queue(), {
                                 self.dismissViewControllerAnimated(true, completion: nil)
                             })
                         } else {
-                            println("error from saveLocation: \(error!.description)")
+                            self.showErrorAlert(error!.description)
                         }
                     })
                 }
