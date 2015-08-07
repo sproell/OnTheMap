@@ -21,9 +21,7 @@ class AddLocationViewController: UIViewController {
     var userID : String?
     var placemark : CLPlacemark?
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
+    override func viewWillAppear(animated: Bool) {
         // The initial state of the view is that the first question is presented
         // and the map is hidden.
         mapView.hidden = true
@@ -72,6 +70,8 @@ class AddLocationViewController: UIViewController {
                     
                     dispatch_async(dispatch_get_main_queue(), {
                         
+                        self.activityIndicator.stopAnimating()
+                        
                         // remove existing annotations
                         self.mapView.removeAnnotations(self.mapView.annotations)
                         
@@ -92,10 +92,11 @@ class AddLocationViewController: UIViewController {
                     
                 } else {
                     // could not geocode location
-                    self.showErrorAlert("Unable to geocode location.")
+                    dispatch_async(dispatch_get_main_queue(), {
+                        self.activityIndicator.stopAnimating()
+                        self.showErrorAlert("Unable to geocode location.")
+                    })
                 }
-                
-                self.activityIndicator.stopAnimating()
             })
         }
     }
@@ -120,7 +121,10 @@ class AddLocationViewController: UIViewController {
                 
                 if user == nil {
                     // could not load the user
-                    self.showErrorAlert(errorString!)
+                    dispatch_async(dispatch_get_main_queue(), {
+                        self.activityIndicator.stopAnimating()
+                        self.showErrorAlert(errorString!)
+                    })
                 } else {
                     
                     var newLoc = StudentLocation()
@@ -132,19 +136,18 @@ class AddLocationViewController: UIViewController {
                     newLoc.mediaURL = url
                     
                     ParseClient.sharedInstance().saveLocation(user!.key!, location: newLoc, completionHandler: {(success, error) -> Void in
-                        if success {
-                            // the location was saved successfully.  Dismiss view controller
-                            // and return to tabbed view.
-                            dispatch_async(dispatch_get_main_queue(), {
+                        dispatch_async(dispatch_get_main_queue(), {
+                            self.activityIndicator.stopAnimating()
+                            if success {
+                                // the location was saved successfully.  Dismiss view controller
+                                // and return to tabbed view.
                                 self.dismissViewControllerAnimated(true, completion: nil)
-                            })
-                        } else {
-                            self.showErrorAlert(error!.description)
-                        }
+                            } else {
+                                self.showErrorAlert(error!.description)
+                            }
+                        })
                     })
                 }
-                
-                self.activityIndicator.stopAnimating()
             })
         }
     }

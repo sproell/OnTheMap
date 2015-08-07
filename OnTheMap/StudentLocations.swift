@@ -20,7 +20,6 @@ class StudentLocations : NSObject {
 
         ParseClient.sharedInstance().getLocations { (result, error) -> Void in
             if let locations = result {
-                // remove all locations from array and add the new ones
                 self.locations.removeAll(keepCapacity: true)
                 self.locations.extend(locations)
                 completionHandler(success: true, errorString: nil)

@@ -275,7 +275,7 @@
                                             <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                         </state>
                                         <connections>
-                                            <action selector="findOnMap:" destination="9iL-Af-qpI" eventType="touchUpInside" id="mMC-f0-xWF"/>
+                                            <action selector="findOnMap:" destination="9iL-Af-qpI" eventType="touchUpInside" id="JPR-w4-9N1"/>
                                         </connections>
                                     </button>
                                     <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="IEq-dE-aF6">
@@ -321,8 +321,7 @@
                                             <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                         </state>
                                         <connections>
-                                            <action selector="findOnMap:" destination="9iL-Af-qpI" eventType="touchUpInside" id="c2s-O0-bCu"/>
-                                            <action selector="saveLocation:" destination="9iL-Af-qpI" eventType="touchUpInside" id="nGz-RK-i7r"/>
+                                            <action selector="saveLocation:" destination="9iL-Af-qpI" eventType="touchUpInside" id="pS3-YY-neW"/>
                                         </connections>
                                     </button>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Enter a URL." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="A3E-5n-deA">

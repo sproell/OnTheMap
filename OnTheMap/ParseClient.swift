@@ -27,7 +27,8 @@ class ParseClient: NSObject {
     func getLocations(completionHandler: (result: [StudentLocation]?, error: NSError?) -> Void) {
         
         // Specify method and parameters
-        let parameters = ["limit": 100]
+        // results are returned in order of most recent update
+        let parameters = ["limit": 100, "order": "-updatedAt"]
         let urlString = "https://api.parse.com/1/classes/StudentLocation" + escapedParameters(parameters)
         let url = NSURL(string: urlString)!
 
@@ -76,7 +77,7 @@ class ParseClient: NSObject {
             } else {
                 var parsingError: NSError? = nil
                 let parsedResult = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments, error: &parsingError) as! NSDictionary
-                println(NSString(data: data, encoding: NSUTF8StringEncoding))
+                
                 if let objectId = parsedResult.valueForKey("objectId") as? String {
                     completionHandler(success: true, error: nil)
                 } else {

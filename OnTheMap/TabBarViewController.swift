@@ -32,11 +32,13 @@ class TabBarViewController: UITabBarController {
                 })
             } else {
                 // If logout doesn't work, alert the user, but just return to the login view anyway
-                let alertController = UIAlertController(title: "Error Logging Out", message: errorString, preferredStyle: UIAlertControllerStyle.Alert)
-                alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
-                self.presentViewController(alertController, animated: true, completion: {
-                    dispatch_async(dispatch_get_main_queue(), {
-                        self.dismissViewControllerAnimated(true, completion: nil)
+                dispatch_async(dispatch_get_main_queue(), {
+                    let alertController = UIAlertController(title: "Error Logging Out", message: errorString, preferredStyle: UIAlertControllerStyle.Alert)
+                    alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
+                    self.presentViewController(alertController, animated: true, completion: {
+                        dispatch_async(dispatch_get_main_queue(), {
+                            self.dismissViewControllerAnimated(true, completion: nil)
+                        })
                     })
                 })
             }
@@ -51,9 +53,11 @@ class TabBarViewController: UITabBarController {
             if success {
                 NSNotificationCenter.defaultCenter().postNotificationName("RefreshLocations", object: self)
             } else {
-                let alertController = UIAlertController(title: "Error Loading Locations", message: error!, preferredStyle: UIAlertControllerStyle.Alert)
-                alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
-                self.presentViewController(alertController, animated: true, completion: nil)
+                dispatch_async(dispatch_get_main_queue(), {
+                    let alertController = UIAlertController(title: "Error Loading Locations", message: error!, preferredStyle: UIAlertControllerStyle.Alert)
+                    alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
+                    self.presentViewController(alertController, animated: true, completion: nil)
+                })
             }
         })
     }
