@@ -137,7 +137,6 @@ class UdacityClient: NSObject {
         let task = session.dataTaskWithRequest(request) {data, response, error in
             
             if let error = error {
-                println("network error in getUser()")
                 completionHandler(user: nil, errorString: error.localizedDescription)
                 
             } else {
